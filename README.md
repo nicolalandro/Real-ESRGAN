@@ -17,11 +17,13 @@
     ```bash
     cd Real-ESRGAN
     flatpak run --command=bash org.gimp.GIMP//beta
+    python -m ensurepip
+    python -m pip install --upgrade pip
 
-    pip install basicsr
-    pip install facexlib
-    pip install gfpgan
-    pip install -r requirements.txt
+    python -m pip install basicsr
+    python -m pip install facexlib
+    python -m pip install gfpgan
+    python -m pip install -r requirements.txt
     ```
 
 3. Download pretrained models

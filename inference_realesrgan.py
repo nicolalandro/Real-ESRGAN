@@ -30,10 +30,11 @@ def apply_real_esr_gan(args):
         model = SRVGGNetCompact(num_in_ch=3, num_out_ch=3, num_feat=64, num_conv=16, upscale=4, act_type='prelu')
         netscale = 4
 
+    dir_path = os.path.dirname(os.path.realpath(__file__))
     # determine model paths
-    model_path = os.path.join('experiments/pretrained_models', args.model_name + '.pth')
+    model_path = os.path.join(dir_path, 'experiments/pretrained_models', args.model_name + '.pth')
     if not os.path.isfile(model_path):
-        model_path = os.path.join('realesrgan/weights', args.model_name + '.pth')
+        model_path = os.path.join(dir_path, 'realesrgan/weights', args.model_name + '.pth')
     if not os.path.isfile(model_path):
         raise ValueError(f'Model {args.model_name} does not exist.')
 
@@ -60,7 +61,7 @@ def apply_real_esr_gan(args):
     if os.path.isfile(args.input):
         paths = [args.input]
     else:
-        paths = sorted(glob.glob(os.path.join(args.input, '*')))
+        paths = sorted(glob.glob(os.path.join(dir_path, args.input, '*')))
 
     for idx, path in enumerate(paths):
         imgname, extension = os.path.splitext(os.path.basename(path))
@@ -87,7 +88,7 @@ def apply_real_esr_gan(args):
                 extension = args.ext
             if img_mode == 'RGBA':  # RGBA images should be saved in png format
                 extension = 'png'
-            save_path = os.path.join(args.output, f'{imgname}_{args.suffix}.{extension}')
+            save_path = os.path.join(dir_path, args.output, f'{imgname}_{args.suffix}.{extension}')
             cv2.imwrite(save_path, output)
 
 

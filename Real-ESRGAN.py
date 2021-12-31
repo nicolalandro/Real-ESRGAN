@@ -156,24 +156,36 @@ class SaveAndLoad(Gimp.PlugIn):
             while (True):
                 response = dialog.run()
                 if response == Gtk.ResponseType.OK:
-                    base_dir = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(), True)
+                    #base_dir = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(), True)
+                    dir_path = os.path.dirname(os.path.realpath(__file__))
 
+                    input_path = os.path.join(dir_path, "results/cache.png")
                     # save
-                    save_image(image, drawable, os.path.join(base_dir, "cache.png"))
+                    save_image(image, drawable, input_path)
 
                     # compute something and resave image
+                    args = ArgsFromDict(**{
+                        'input': input_path,
+                        'model_name': 'RealESRGAN_x4plus',
+                        'output': 'results',
+                        'outscale': 4,
+                        'suffix': 'out',
+                        'tile': 0,
+                        'tile_pad': 10,
+                        'pre_pad': 0,
+                        'face_enhance': False,
+                        'half': False,
+                        'alpha_upsampler': 'realesrgan',
+                        'ext': 'auto',
+                    })
+                    apply_real_esr_gan(args)
 
                     # load and create layer
-                    img = load_image(os.path.join(base_dir, "cache.png"))
+                    img = load_image(os.path.join(dir_path, "results/cache_out.png"))
                     result_layer = img.get_active_layer()
                     layer = Gimp.Layer.new_from_drawable(result_layer, image)
                     layer.set_name("loaded")
-                    #layer = Gimp.Layer.new(
-                        #img, 'loaded',
-                        #drawable.get_width(), drawable.get_height(),
-                        #Gimp.ImageType.RGBA_IMAGE, 100.0,
-                        #Gimp.LayerMode.NORMAL
-                    #)
+
                     position = Gimp.get_pdb().run_procedure('gimp-image-get-item-position',
                                  [image,
                                   drawable]).index(1)

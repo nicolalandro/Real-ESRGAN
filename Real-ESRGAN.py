@@ -132,26 +132,22 @@ class SaveAndLoad(Gimp.PlugIn):
             dialog.add_button(_("_Cancel"), Gtk.ResponseType.CANCEL)
             dialog.add_button(_("_OK"), Gtk.ResponseType.OK)
 
-            geometry = Gdk.Geometry()
-            geometry.min_aspect = 0.5
-            geometry.max_aspect = 1.0
-            dialog.set_geometry_hints(None, geometry, Gdk.WindowHints.ASPECT)
+            builder = Gtk.Builder()
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            builder.add_from_file(os.path.join(dir_path, "ui.glade"))
 
-            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+            box = builder.get_object("box")
             dialog.get_content_area().add(box)
             box.show()
 
-            # Label text content
-            label = Gtk.Label(label='Text:')
-            box.pack_start(label, False, False, 1)
-            label.show()
-
-            text_path = Gtk.TextView()
-            buffer = text_path.get_buffer()
-            buffer.set_text('/tmp', -1)
-            box.pack_start(text_path, True, True, 1)
-            text_path.show()
-
+            model_selector = builder.get_object("model_selector")
+            apha_upsampler_selector = builder.get_object("apha_upsampler_selector")
+            scale_spinner = builder.get_object("scale_spinner")
+            tile_spinner = builder.get_object("tile_spinner")
+            tile_pad_spinner = builder.get_object("tile_pad_spinner")
+            tile_prepad_spinner = builder.get_object("tile_prepad_spinner")
+            face_enhance = builder.get_object("face_enhance")
+            half = builder.get_object("half")
 
             while (True):
                 response = dialog.run()
@@ -166,16 +162,16 @@ class SaveAndLoad(Gimp.PlugIn):
                     # compute something and resave image
                     args = ArgsFromDict(**{
                         'input': input_path,
-                        'model_name': 'RealESRGAN_x4plus',
+                        'model_name': model_selector.get_active_text(),
                         'output': 'results',
-                        'outscale': 4,
+                        'outscale': scale_spinner.get_value(),
                         'suffix': 'out',
-                        'tile': 0,
-                        'tile_pad': 10,
-                        'pre_pad': 0,
-                        'face_enhance': False,
-                        'half': False,
-                        'alpha_upsampler': 'realesrgan',
+                        'tile': tile_spinner.get_value_as_int(),
+                        'tile_pad': tile_pad_spinner.get_value_as_int(),
+                        'pre_pad': tile_prepad_spinner.get_value_as_int(),
+                        'face_enhance': face_enhance.get_active(),
+                        'half': half.get_active(),
+                        'alpha_upsampler': apha_upsampler_selector.get_active_text(),
                         'ext': 'auto',
                     })
                     apply_real_esr_gan(args)
